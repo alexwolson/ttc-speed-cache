@@ -16,7 +16,7 @@ The TTC has long struggled with slow transit speeds across its network, particul
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/ttc-speed-cache.git
+git clone https://github.com/alexwolson/ttc-speed-cache.git
 cd ttc-speed-cache
 
 # Install dependencies
@@ -135,9 +135,3 @@ MIT
 This project is derived from the [TTC Leaderboard](https://github.com/lukajvnic/ttc-leaderboard) by **Luka Jovanovic** and **Matthew Li**. The original project was a live web application displaying real-time TTC route speeds; this version focuses solely on the data collection component for long-term analysis.
 
 Data provided by TTC via the UmoIQ NextBus public XML feed.
-└── package.json
-```
-
-## 👤 Author
-
-**Luka Jovanovic** — [lukajvnic.com](https://lukajvnic.com)
