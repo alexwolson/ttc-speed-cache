@@ -132,6 +132,8 @@ MIT
 
 ## 🙏 Acknowledgments
 
+This project is derived from the [TTC Leaderboard](https://github.com/lukajvnic/ttc-leaderboard) by **Luka Jovanovic** and **Matthew Li**. The original project was a live web application displaying real-time TTC route speeds; this version focuses solely on the data collection component for long-term analysis.
+
 Data provided by TTC via the UmoIQ NextBus public XML feed.
 └── package.json
 ```
