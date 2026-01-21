@@ -1,0 +1,24 @@
+{
+  "name": "ttc-speed-cache",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "TTC speed data collection tool",
+  "scripts": {
+    "cache-speeds": "tsx scripts/cache-speeds.ts",
+    "lint": "eslint scripts/"
+  },
+  "dependencies": {
+    "fast-xml-parser": "^5.3.3",
+    "msgpackr": "^1.10.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "@types/node": "^24.10.1",
+    "eslint": "^9.39.1",
+    "globals": "^16.5.0",
+    "tsx": "^4.21.0",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.46.4"
+  }
+}
