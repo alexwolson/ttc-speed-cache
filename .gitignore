@@ -31,3 +31,6 @@ speed-cache/
 *.sln
 *.sw?
 .vercel
+
+# Agent files
+.copilot/
