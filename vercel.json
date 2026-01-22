@@ -1,0 +1,8 @@
+{
+  "functions": {
+    "api/collect-sample.ts": {
+      "maxDuration": 60,
+      "memory": 512
+    }
+  }
+}

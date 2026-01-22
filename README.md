@@ -1,48 +1,48 @@
 # TTC Speed Cache
 
-A data collection tool for tracking TTC (Toronto Transit Commission) vehicle speeds across all routes over time. Collects speed data from the TTC's public NextBus XML feed and stores it in efficient MessagePack format for analysis.
+An automated cloud-based data collection tool for tracking TTC (Toronto Transit Commission) vehicle speeds across all routes over time. Collects speed data every minute from the TTC's public NextBus XML feed and stores it in efficient MessagePack format on Vercel Blob Storage for long-term analysis.
 
 ## 🎯 Purpose
 
-The TTC has long struggled with slow transit speeds across its network, particularly on streetcar routes. This tool enables long-term data collection to analyze speed patterns, identify problem routes, and support evidence-based advocacy for improvements like transit signal priority (TSP), dedicated lanes, and other speed-enhancing measures.
+The TTC has long struggled with slow transit speeds across its network, particularly on streetcar routes. This tool enables automated, long-term data collection to analyze speed patterns, identify problem routes, and support evidence-based advocacy for improvements like transit signal priority (TSP), dedicated lanes, and other speed-enhancing measures.
 
 ## 🚀 Getting Started
 
 ### Prerequisites
-- Node.js 20.x or later
-- npm
+- Vercel account (free tier works)
+- Node.js 20.x or later (for local development/testing)
 
-### Installation
+### Deployment
 
 ```bash
 # Clone the repository
 git clone https://github.com/alexwolson/ttc-speed-cache.git
 cd ttc-speed-cache
 
-# Install dependencies
+# Install dependencies (for local development)
 npm install
+
+# Deploy to Vercel
+vercel
 ```
 
-### Usage
+### Configuration
 
-Collect TTC speed data over an extended period:
+1. **Create Vercel Blob Store** in your project dashboard
+2. **Set environment variables** in Vercel project settings:
+  - `BLOB_READ_WRITE_TOKEN` - From your Vercel Blob Store
+  - `CRON_SECRET` (optional) - Random string for cron authentication
 
-```bash
-# Run with default 30-day collection period
-npm run cache-speeds
+3. **Deploy** - The cron job will automatically start running every minute
 
-# Or specify a custom duration in days
-npm run cache-speeds 7
-```
+### How It Works
 
-The script will:
-- Fetch speed data every 60 seconds from the TTC NextBus API
+A Vercel Cron job (`/api/collect-sample`) runs every minute and:
+- Fetches speed data from the TTC NextBus API
 - Calculate average speeds per route based on active vehicles
-- Store data in `speed-cache/speed-data-YYYY-MM-DD.msgpack` (binary format)
-- Maintain a `speed-cache/routes.json` file with route metadata
-- Display collection statistics and progress
-
-Press `Ctrl+C` to stop collection at any time. Statistics will be displayed on exit.
+- Stores each sample as `speed-data-YYYY-MM-DD-HHmm.msgpack` in Vercel Blob Storage
+- Updates daily `routes-YYYY-MM-DD.json` file with route metadata
+- Returns execution stats (routes collected, blob URLs, execution time)
 
 ## 📊 How It Works
 
@@ -60,9 +60,9 @@ Press `Ctrl+C` to stop collection at any time. Statistics will be displayed on e
 
 ## 📁 Data Format
 
-### Speed Records (`speed-cache/speed-data-YYYY-MM-DD.msgpack`)
+### Speed Records (Blob Storage: `speed-data-YYYY-MM-DD-HHmm.msgpack`)
 
-Binary MessagePack file containing an array of records:
+Binary MessagePack file containing an array of records for a single minute:
 
 ```typescript
 type SpeedRecord = [
@@ -73,7 +73,9 @@ type SpeedRecord = [
 ]
 ```
 
-### Route Metadata (`speed-cache/routes.json`)
+**File naming**: `speed-data-2026-01-21-1430.msgpack` (YYYY-MM-DD-HHmm UTC)
+
+### Route Metadata (Blob Storage: `routes-YYYY-MM-DD.json`)
 
 JSON file mapping route tags to titles:
 
@@ -85,37 +87,57 @@ JSON file mapping route tags to titles:
 }
 ```
 
+**File naming**: `routes-2026-01-21.json` (YYYY-MM-DD UTC, updated once daily)
+
 ## 🗂️ Project Structure
 
 ```
 ttc-speed-cache/
-├── scripts/
-│   ├── cache-speeds.ts    # Main data collection script
-│   └── README.md          # Detailed script documentation
-├── speed-cache/           # Data output directory (gitignored)
-│   ├── routes.json        # Route metadata
-│   └── speed-data-*.msgpack  # Daily speed data files
+├── api/
+│   └── collect-sample.ts  # Vercel Cron endpoint for data collection
+├── .copilot/              # Architecture plans and documentation
 ├── package.json
 ├── tsconfig.json
-├── eslint.config.js
+├── vercel.json            # Vercel Cron configuration
+├── .env.example           # Environment variables template
 └── README.md
 ```
 
 ## 🔧 Configuration
 
-Edit constants in [scripts/cache-speeds.ts](scripts/cache-speeds.ts):
+**Cron Schedule** - Edit [vercel.json](vercel.json) to change collection frequency:
+- Default: `"* * * * *"` (every minute)
+- Every 5 minutes: `"*/5 * * * *"`
 
-- `FETCH_INTERVAL_MS`: Data collection interval (default: 60 seconds)
-- `DEFAULT_DURATION_DAYS`: Default collection duration (default: 30 days)
-- `CACHE_DIR`: Output directory (default: `./speed-cache`)
+**Data Access** - Download collected data from Vercel Blob Storage:
+```bash
+# Using Vercel CLI
+vercel blob ls
+vercel blob download speed-data-2026-01-21-1430.msgpack
+```
 
 ## 📝 Notes
 
-- The `speed-cache/` directory is gitignored by default to prevent committing large data files
-- Data files are named by date in UTC timezone
-- MessagePack format provides ~50% size reduction compared to JSON
-- Route metadata is refreshed every hour to catch new routes
-- Script continues on API errors to maintain uptime during network issues
+- Data is stored in Vercel Blob Storage (not in git repository)
+- Files are named with UTC timestamps for consistent global time reference
+- MessagePack format provides ~77% size reduction compared to JSON
+- Routes are updated once per day to minimize API calls
+- Cron continues on API errors (skips that minute, retries next execution)
+- **Cost**: ~$0.01/month for storage (420 MB/month @ $0.015/GB)
+
+## 📊 Data Analysis
+
+Files can be downloaded and analyzed locally using the MessagePack format:
+
+```typescript
+import { Packr } from 'msgpackr';
+import * as fs from 'fs';
+
+const packr = new Packr();
+const buffer = fs.readFileSync('speed-data-2026-01-21-1430.msgpack');
+const records = packr.unpack(buffer);
+console.log(records); // Array of [timestampMs, routeTag, speedKmh, vehicleCount]
+```
 
 ## 🛠️ Development
 

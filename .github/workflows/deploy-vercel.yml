@@ -1,0 +1,52 @@
+name: Deploy to Vercel
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Vercel CLI
+        run: npm install -g vercel
+
+      - name: Link Vercel project
+        run: vercel link --yes --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Deploy to Vercel
+        run: vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Sync environment variables to production
+        run: |
+          echo "${{ secrets.QSTASH_TOKEN }}" | vercel env add QSTASH_TOKEN production --token=${{ secrets.VERCEL_TOKEN }} --yes || true
+          echo "${{ secrets.QSTASH_CURRENT_SIGNING_KEY }}" | vercel env add QSTASH_CURRENT_SIGNING_KEY production --token=${{ secrets.VERCEL_TOKEN }} --yes || true
+          echo "${{ secrets.QSTASH_NEXT_SIGNING_KEY }}" | vercel env add QSTASH_NEXT_SIGNING_KEY production --token=${{ secrets.VERCEL_TOKEN }} --yes || true
+          echo "${{ secrets.BLOB_READ_WRITE_TOKEN }}" | vercel env add BLOB_READ_WRITE_TOKEN production --token=${{ secrets.VERCEL_TOKEN }} --yes || true
+          echo "${{ secrets.CRON_SECRET }}" | vercel env add CRON_SECRET production --token=${{ secrets.VERCEL_TOKEN }} --yes || true
+
+      - name: Sync environment variables to preview
+        run: |
+          echo "${{ secrets.QSTASH_TOKEN }}" | vercel env add QSTASH_TOKEN preview --token=${{ secrets.VERCEL_TOKEN }} --yes || true
+          echo "${{ secrets.QSTASH_CURRENT_SIGNING_KEY }}" | vercel env add QSTASH_CURRENT_SIGNING_KEY preview --token=${{ secrets.VERCEL_TOKEN }} --yes || true
+          echo "${{ secrets.QSTASH_NEXT_SIGNING_KEY }}" | vercel env add QSTASH_NEXT_SIGNING_KEY preview --token=${{ secrets.VERCEL_TOKEN }} --yes || true
+          echo "${{ secrets.BLOB_READ_WRITE_TOKEN }}" | vercel env add BLOB_READ_WRITE_TOKEN preview --token=${{ secrets.VERCEL_TOKEN }} --yes || true
+          echo "${{ secrets.CRON_SECRET }}" | vercel env add CRON_SECRET preview --token=${{ secrets.VERCEL_TOKEN }} --yes || true
+
+      - name: Sync environment variables to development
+        run: |
+          echo "${{ secrets.QSTASH_TOKEN }}" | vercel env add QSTASH_TOKEN development --token=${{ secrets.VERCEL_TOKEN }} --yes || true
+          echo "${{ secrets.QSTASH_CURRENT_SIGNING_KEY }}" | vercel env add QSTASH_CURRENT_SIGNING_KEY development --token=${{ secrets.VERCEL_TOKEN }} --yes || true
+          echo "${{ secrets.QSTASH_NEXT_SIGNING_KEY }}" | vercel env add QSTASH_NEXT_SIGNING_KEY development --token=${{ secrets.VERCEL_TOKEN }} --yes || true
+          echo "${{ secrets.BLOB_READ_WRITE_TOKEN }}" | vercel env add BLOB_READ_WRITE_TOKEN development --token=${{ secrets.VERCEL_TOKEN }} --yes || true
+          echo "${{ secrets.CRON_SECRET }}" | vercel env add CRON_SECRET development --token=${{ secrets.VERCEL_TOKEN }} --yes || true

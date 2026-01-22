@@ -1,0 +1,26 @@
+name: Deploy QStash Schedule
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Create QStash schedule
+        run: npm run schedule:qstash
+        env:
+          QSTASH_TOKEN: ${{ secrets.QSTASH_TOKEN }}
+          COLLECT_ENDPOINT_URL: https://ttc-speed-cache.vercel.app/api/collect-sample
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}

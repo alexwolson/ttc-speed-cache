@@ -5,16 +5,20 @@
   "type": "module",
   "description": "TTC speed data collection tool",
   "scripts": {
-    "cache-speeds": "tsx scripts/cache-speeds.ts",
-    "lint": "eslint scripts/"
+    "lint": "eslint api/",
+    "schedule:qstash": "tsx scripts/qstash-schedule.ts",
+    "verify": "tsx scripts/verify-deployment.ts"
   },
   "dependencies": {
+    "@vercel/blob": "^0.27.0",
+    "@upstash/qstash": "^2.7.0",
     "fast-xml-parser": "^5.3.3",
     "msgpackr": "^1.10.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
     "@types/node": "^24.10.1",
+    "@vercel/node": "^5.5.23",
     "eslint": "^9.39.1",
     "globals": "^16.5.0",
     "tsx": "^4.21.0",

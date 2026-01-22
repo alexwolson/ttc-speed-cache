@@ -34,3 +34,4 @@ speed-cache/
 
 # Agent files
 .copilot/
+.env*.local
